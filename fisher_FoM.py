@@ -10,6 +10,7 @@ from scipy.special import comb
 from CovMat import *
 from cl_and_cov import *
 from signal_to_noise import *
+from initialize import *
 import numdifftools as nd
 
 def getC_ellOfSigma8(sigma8):
@@ -58,19 +59,19 @@ def fisher_matrix(covariance):
     'w_0': getC_ellOfw0,
     'w_a': getC_ellOfwa}
     vals = {
-    'sigma_8': sigma_8, 
-    'omega_b': omega_b, 
+    'sigma_8': sigma8, 
+    'omega_b': Omega_b, 
     'h': h, 
     'n_s': n_s, 
-    'omega_m': omega_m,
+    'omega_m': Omega_m,
     'w_0': w_0,
     'w_a': w_a}
     derivs_sig = {}
     for var in funcs.keys():
-        if var == 'w_a':
+        if vals[var] == 0:
             f = nd.Derivative(funcs[var], full_output=True, step=0.1)
         else:
-            f = nd.Derivative(funcs[var], full_output=True, step=var/10)
+            f = nd.Derivative(funcs[var], full_output=True, step=float(vals[var])/10)
         val, info = f(vals[var])
         derivs_sig[var] = val
     param_order = ['omega_m', 'sigma_8', 'n_s', 'w_0', 'w_a', 'omega_b', 'h']

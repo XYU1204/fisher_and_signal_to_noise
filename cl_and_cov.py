@@ -70,7 +70,7 @@ def sliced_equal_n(dndz, nbins_z):
         dndz_cut["bin_{}".format(i)] = dndz[np.logical_and(cdf>inc*i, cdf<inc*(i+1))]
     return dndz_cut
 
-def getCl(dndz_sliced, ell, cosmo):
+def getCl(ell, cosmo, dndz_sliced):
     """This function calculats auto- and cross-power spectra for given sliced galaxy-redshift distribution."""
     n = len(dndz_sliced);
     lens = [[]]*n
@@ -103,7 +103,7 @@ def getDataArray(n_bins, bin_type, cosmo, dndz, ell, numdenPerStr, fsky):
     else:
         print("Enter 'z' for bins of equal redshifts, and 'n' for bins of equal galaxy number")
         return(None)
-    cl_arr = getCl(dndz_cut, ell, cosmo) 
+    cl_arr = getCl(dndz_sliced=dndz_cut, ell=ell, cosmo=cosmo) 
     cov_arr = getCovMat(fsky, n_bins, cl_arr, ell, dndz_cut, dndz, numdenPerStr)
     redshifts=[]
     for x in dndz_cut.values():

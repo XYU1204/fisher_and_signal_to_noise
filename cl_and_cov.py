@@ -54,7 +54,11 @@ def sliced_equal_z(dndz, nbins_z):
     dndz_cut = {}
     #create an empty dictionary for sliced galaxy number density distribution
     for i in range(n):
-        dndz_cut["bin_{}".format(i)] = dndz[np.logical_and(dndz[:,0]>inc*i+min_z, dndz[:,0]<inc*(i+1)+min_z)]
+        dndz_cut["bin_{}".format(i)]= dndz[np.logical_and(dndz[:,0]>=inc*i+min_z, dndz[:,0]<inc*(i+1)+min_z)]
+    #add to the last bin
+    if dndz_cut["bin_{}".format(i)][-1][0] < dndz[ :, 0].max():
+        new = np.vstack([dndz_cut["bin_{}".format(i)], dndz[-1, :]])
+        dndz_cut["bin_{}".format(i)] = new
     return dndz_cut
 
 def sliced_equal_n(dndz, nbins_z):
@@ -67,10 +71,12 @@ def sliced_equal_n(dndz, nbins_z):
     dndz_cut = {}
     #create an empty dictionary for sliced galaxy number density distribution
     for i in range(n):
-        dndz_cut["bin_{}".format(i)] = dndz[np.logical_and(cdf>inc*i, cdf<inc*(i+1))]
+        dndz_cut["bin_{}".format(i)] = dndz[np.logical_and(cdf>=inc*i, cdf<inc*(i+1))]
+    new = np.vstack([dndz_cut["bin_{}".format(i)], dndz[-1, :]])
+    dndz_cut["bin_{}".format(i)] = new
     return dndz_cut
 
-def getCl(ell, cosmo, dndz_sliced):
+def getCl(cosmo, dndz_sliced, ell):
     """This function calculats auto- and cross-power spectra for given sliced galaxy-redshift distribution."""
     n = len(dndz_sliced);
     lens = [[]]*n
@@ -83,18 +89,24 @@ def getCl(ell, cosmo, dndz_sliced):
     cl_arr = np.array(cl)
     return cl_arr
 
-def getCovMat(fsky, n_bins, cl, ell, dndz, dndz1, numdenPerStr):
+def num_den(dndz_sliced, numdenPerStr):
+    numden = np.array([np.sum(dndz_sliced["bin_{}".format(i)][:, 1]) for i in range(len(dndz_sliced))])
+    new = numden/np.sum(numden)
+    new = numdenPerStr*new
+    return new
+
+def getCovMat(fsky, n_bins, cl, dndz_sliced, numdenPerStr, ell):
     """dndz1 is the original galaxy redshift distribution, whereas dndz is the sliced distribution in different redshift bins"""
     l = []
     for j in range(n_bins):
         l.extend([[j, j+i] for i in range(n_bins-j)])
     cl_bin = np.vstack((ell, cl)).T
     #for number density, divide galaxy numbers into each tomographic bin
-    numden = np.array([(np.sum(dndz["bin_{}".format(i)][:, 1])/np.sum(dndz1[:,1]))*numdenPerStr for i in range(n_bins)])
+    numden = num_den(dndz_sliced, numdenPerStr)
     cov_arr = np.array(multi_bin_cov(fsky, cl_bin, np.array(l), numden))
     return cov_arr
 
-def getDataArray(n_bins, bin_type, cosmo, dndz, ell, numdenPerStr, fsky):
+def getDataArray(n_bins, bin_type, cosmo, ell, dndz, numdenPerStr, fsky):
     """input cosmo for cosmological object, dndz for galaxy redshift distribution, rbins for number of tomographic bins in redshift, rbin_type for how to divide the tomographic bins in redshifts: input string z for bins of equal redshifts, and n for bins of equal galaxy number. This function will return the covariance array, cl data array, and the redshift range for each tomographic bins"""
     if bin_type == 'z':
         dndz_cut = sliced_equal_z(dndz, n_bins)
@@ -103,10 +115,10 @@ def getDataArray(n_bins, bin_type, cosmo, dndz, ell, numdenPerStr, fsky):
     else:
         print("Enter 'z' for bins of equal redshifts, and 'n' for bins of equal galaxy number")
         return(None)
-    cl_arr = getCl(dndz_sliced=dndz_cut, ell=ell, cosmo=cosmo) 
-    cov_arr = getCovMat(fsky, n_bins, cl_arr, ell, dndz_cut, dndz, numdenPerStr)
+    cl_arr = getCl(dndz_sliced=dndz_cut, cosmo=cosmo, ell=ell) 
+    cov_arr = getCovMat(fsky=fsky, n_bins=n_bins, cl=cl_arr, dndz_sliced=dndz_cut, numdenPerStr=numdenPerStr, ell=ell)
     redshifts=[]
     for x in dndz_cut.values():
         redshifts.append(x[1][0])
-    redshifts.append([-1][0])
+    redshifts.append(x[-1][0])
     return cov_arr, cl_arr, redshifts, dndz_cut

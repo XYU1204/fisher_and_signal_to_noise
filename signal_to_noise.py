@@ -28,18 +28,18 @@ def BoundloUp(i, binl, ell):
 def num_cov(bins_in_z):
     return bins_in_z + comb(bins_in_z, 2)
 
-def binnedCl(bins_in_z, binl, cl_o, elll):
+def binnedCl(bins_in_z, binl, cl_o, ell):
     """bin the cl signals according to array of ls"""
     Cl_binned = np.zeros([int(num_cov(bins_in_z)), int(len(binl))])
     for i in range(len(binl)):
-        Cl_binned[:, i] = np.mean(cl_o[:, int(BoundloUp(i, binl, elll)[0]):int(BoundloUp(i, binl, elll)[1])], axis=1)
+        Cl_binned[:, i] = np.mean(cl_o[:, int(BoundloUp(i, binl, ell)[0]):int(BoundloUp(i, binl, ell)[1])], axis=1)
     return Cl_binned
 
-def binnedCov(bins_in_z, binl, cov_o, elll):
+def binnedCov(bins_in_z, binl, cov_o, ell):
     """bin the covariance according to array of binning ls"""
     Cov_binned = np.zeros([ int(len(binl)), int(num_cov(bins_in_z)), int(num_cov(bins_in_z))])
     for i in range(len(binl)):
-        lo, up = BoundloUp(i, binl, elll)
+        lo, up = BoundloUp(i, binl, ell)
         Cov_binned[i, :, :] = np.sum(cov_o[int(lo):int(up), :, :], axis=0)/(up-lo)**2
     return Cov_binned
 

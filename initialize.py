@@ -7,5 +7,5 @@ n_s=0.96
 w_0 = -1
 w_a = 0
 transfer_function = 'bbks'
-fsky=0.4
+fsky = 0.4
 ell = np.arange(2, 10001)

@@ -26,27 +26,27 @@ def getC_ellOfOmegab(Omega_b, dndz_sliced):
 
 def getC_ellOfh(h, dndz_sliced):
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
-    cl = getCl(ell, cosmo, dndz_sliced)
+    cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
 def getC_ellOfn_s(n_s, dndz_sliced):
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
-    cl = getCl(ell, cosmo, dndz_sliced)
+    cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
 def getC_ellOfOmegam(Omega_m, dndz_sliced):
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
-    cl = getCl(ell, cosmo, dndz_sliced)
+    cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
 def getC_ellOfw0(w_0, dndz_sliced):
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, w0=w_0, transfer_function= transfer_function)
-    cl = getCl(ell, cosmo, dndz_sliced)
+    cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
 def getC_ellOfwa(w_a, dndz_sliced):
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, w0=w_a, transfer_function= transfer_function)
-    cl = getCl(ell, cosmo, dndz_sliced)
+    cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
         
 def fisher_matrix(covariance, dndz_sliced):

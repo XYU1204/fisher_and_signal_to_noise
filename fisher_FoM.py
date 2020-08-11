@@ -206,3 +206,39 @@ def plotConfidenceEllipse(cov, para_a, para_b):
     ax_nstd.legend(loc='upper left')
     plt.show()
     return F_o_M
+
+def plotConfidenceEllipse_sub(sub, para_a, para_b):
+    """plot three confidence ellipses between two cosomlogical parameters for given covariance matrix of the two"""
+    vals = {
+    'sigma_8': sigma8, 
+    'Omega_b': Omega_b, 
+    'h': h, 
+    'n_s': n_s, 
+    'Omega_m': Omega_m,
+    'w_0': w_0,
+    'w_a': w_a}
+    mu = (vals[para_a], vals[para_b])
+    a, b, theta = ellipse_parameter(sub)
+    F_o_M = FoM(sub)
+    print("{} = ".format(para_a) + str(mu[0]) + " +- " + str(a) + "\n")
+    print("{} = ".format(para_b) + str(mu[1]) + " +- " + str(b) + "\n")
+    print("Figure of Merit for {0} and {1} is ".format(para_a, para_b) + str(F_o_M) +'\n')
+    fig, ax_nstd = plt.subplots(figsize=(6, 6))
+    confidence_ellipse(mu, a, b, theta, ax_nstd, n_std=1,
+                       label=r'$1\sigma$', edgecolor='firebrick')
+    confidence_ellipse(mu, a, b, theta, ax_nstd, n_std=2,
+                       label=r'$2\sigma$', edgecolor='fuchsia', linestyle='--')
+    confidence_ellipse(mu, a, b, theta, ax_nstd, n_std=3,
+                       label=r'$3\sigma$', edgecolor='blue', linestyle=':')
+    
+    ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
+    if (para_a == 'Omega_m') or (para_a == 'Omega_b') or (para_a == 'sigma_8'):
+        para_a = "\\"+para_a
+    if (para_b == 'Omega_m') or (para_b == 'Omega_b') or (para_b == 'sigma_8'):
+        para_b = "\\"+para_b
+    ax_nstd.set_title(r'Confidence Ellipse for ${0}$ and ${1}$'.format(para_a, para_b))
+    ax_nstd.set_xlabel(r'${0}$'.format(para_a))
+    ax_nstd.set_ylabel(r'${0}$'.format(para_b))
+    ax_nstd.legend(loc='upper left')
+    plt.show()
+    return F_o_M

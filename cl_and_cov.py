@@ -54,11 +54,11 @@ def sliced_equal_z(dndz, nbins_z):
     dndz_cut = {}
     #create an empty dictionary for sliced galaxy number density distribution
     for i in range(n):
-        dndz_cut["bin_{}".format(i)]= dndz[np.logical_and(dndz[:,0]>=inc*i+min_z, dndz[:,0]<inc*(i+1)+min_z)]
+        dndz_cut["bin_{}".format(i+1)]= dndz[np.logical_and(dndz[:,0]>=inc*i+min_z, dndz[:,0]<inc*(i+1)+min_z)]
     #add to the last bin
-    if dndz_cut["bin_{}".format(i)][-1][0] < dndz[ :, 0].max():
-        new = np.vstack([dndz_cut["bin_{}".format(i)], dndz[-1, :]])
-        dndz_cut["bin_{}".format(i)] = new
+    if dndz_cut["bin_{}".format(i+1)][-1][0] < dndz[ :, 0].max():
+        new = np.vstack([dndz_cut["bin_{}".format(i+1)], dndz[-1, :]])
+        dndz_cut["bin_{}".format(i+1)] = new
     return dndz_cut
 
 def sliced_equal_n(dndz, nbins_z):
@@ -71,9 +71,9 @@ def sliced_equal_n(dndz, nbins_z):
     dndz_cut = {}
     #create an empty dictionary for sliced galaxy number density distribution
     for i in range(n):
-        dndz_cut["bin_{}".format(i)] = dndz[np.logical_and(cdf>=inc*i, cdf<inc*(i+1))]
-    new = np.vstack([dndz_cut["bin_{}".format(i)], dndz[-1, :]])
-    dndz_cut["bin_{}".format(i)] = new
+        dndz_cut["bin_{}".format(i+1)] = dndz[np.logical_and(cdf>inc*i, cdf<=inc*(i+1))]
+    #new = np.vstack([dndz_cut["bin_{}".format(i+1)], dndz[-1, :]])
+    #dndz_cut["bin_{}".format(i+1)] = new
     return dndz_cut
 
 def getCl(cosmo, dndz_sliced, ell):
@@ -90,7 +90,7 @@ def getCl(cosmo, dndz_sliced, ell):
     return cl_arr
 
 def num_den(dndz_sliced, numdenPerStr):
-    numden = np.array([np.sum(dndz_sliced["bin_{}".format(i)][:, 1]) for i in range(len(dndz_sliced))])
+    numden = np.array([np.sum(dndz_sliced["bin_{}".format(i+1)][:, 1]) for i in range(len(dndz_sliced))])
     new = numden/np.sum(numden)
     new = numdenPerStr*new
     return new

@@ -36,12 +36,12 @@ def PlotGalaxyDistr(dndz):
     plt.title("galaxy number density distribution by redshift")
     plt.show()
 
-def normalizing(cls):
-    """Add normalizing factor (proportional to angular mode l) for signal"""
+def normalizing(cls, ell):
+    """Add normalizing factor (proportional to angular mode l) for signal, input cls and ell must be the same length"""
     N=np.size(cls)
     clsn=np.zeros(N)
     for i in range(N):
-        clsn[i]=i*(i+1)*cls[i]/(2*np.pi)
+        clsn[i]=ell[i]*(ell[i]+1)*cls[i]/(2*np.pi)
     return clsn
 
 # create bins of dndz using A.equal redshift bins, and B.equal galaxy number bins

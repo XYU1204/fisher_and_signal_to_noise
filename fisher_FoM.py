@@ -18,49 +18,49 @@ import matplotlib.transforms as transforms
 param_order = ['Omega_m', 'sigma_8', 'n_s', 'w_0', 'w_a', 'Omega_b', 'h']
 param_labels = [r'$\Omega_m$', r'$\sigma_8$', r'$n_s$', r'$w_0$', r'$w_a$', r'$\Omega_b$', r'$h$']
 
-def getC_ellOfSigma8(sigma8, dndz_sliced):
+def getC_ellOfSigma8(sigma8, dndz_sliced, ell):
     """create cl w.r.t to Sigma8, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfOmegab(Omega_b, dndz_sliced):
+def getC_ellOfOmegab(Omega_b, dndz_sliced, ell):
     """create cl w.r.t to Omega_baryon, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfh(h, dndz_sliced):
+def getC_ellOfh(h, dndz_sliced, ell):
     """create cl w.r.t to hubble's constant, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfn_s(n_s, dndz_sliced):
+def getC_ellOfn_s(n_s, dndz_sliced, ell):
     """create cl w.r.t to n_s constant, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfOmegam(Omega_m, dndz_sliced):
+def getC_ellOfOmegam(Omega_m, dndz_sliced, ell):
     """create cl w.r.t to Omega_m (matter density component) constant, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfw0(w_0, dndz_sliced):
+def getC_ellOfw0(w_0, dndz_sliced, ell):
     """create cl w.r.t to w_0 constant, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, w0=w_0, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
 
-def getC_ellOfwa(w_a, dndz_sliced):
+def getC_ellOfwa(w_a, dndz_sliced, ell):
     """create cl w.r.t to w_a constant, while keeping other parameters fixed"""
     cosmo = ccl.Cosmology(Omega_c = Omega_m-Omega_b, Omega_b=Omega_b, h=h, sigma8=sigma8, n_s=n_s, w0=w_a, transfer_function= transfer_function)
     cl = getCl(ell = ell, cosmo = cosmo, dndz_sliced = dndz_sliced)
     return cl
         
-def fisher_matrix(covariance, dndz_sliced):
+def fisher_matrix(covariance, dndz_sliced, ell):
     """calculate fisher matrix for 7 cosmological parameters ['omega_m', 'sigma_8', 'n_s', 'w_0', 'w_a', 'omega_b', 'h'] for given covariance matrix of lensing signal, and galaxy-redshift distribution in divided redshift bins."""
     
     funcs = {
@@ -85,7 +85,7 @@ def fisher_matrix(covariance, dndz_sliced):
             f = nd.Derivative(funcs[var], full_output=True, step=0.1)
         else:
             f = nd.Derivative(funcs[var], full_output=True, step=float(vals[var])/10)
-        val, info = f(vals[var], dndz_sliced)
+        val, info = f(vals[var], dndz_sliced, ell)
         derivs_sig[var] = val
     param_order = ['Omega_m', 'sigma_8', 'n_s', 'w_0', 'w_a', 'Omega_b', 'h']
     fisher = np.zeros((7,7))

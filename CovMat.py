@@ -79,7 +79,7 @@ def get_cov_matrix(l, data_order, cl_vals, orderings, fsky):
             out_cov[z, y] = prefac * (cl_ik*cl_jl + cl_il*cl_jk)
     return out_cov
 
-def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens): 
+def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens, *shape_noise): 
         #first column --> l values
 
     combination_cl = Clbins[:, 0]
@@ -107,17 +107,18 @@ def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens):
 
     assert len(orderings) == combination_cl.shape[1]
 
-    #add the shotnoise to each of the cl combinations:
-    shotnoise = []
-    for el in orderings:
-        shotnoise.append(1.0/num_dens[int(el[0] - 1)])  # because ordering starts with 1
-    shotnoise = np.array(shotnoise)
-    assert len(shotnoise) == combination_cl.shape[1]
+    #add the shapenoise to each of the cl combinations:
+    if shape_noise:
+        shapenoise = []
+        for el in orderings:
+            shapenoise.append(shape_noise/(2*num_dens[int(el[0] - 1)]))  # because ordering starts with 1
+        shapenoise = np.array(shapenoise)
+        assert len(shapenoise) == combination_cl.shape[1]
 
-    for i in range(combination_cl.shape[1]):
+        for i in range(combination_cl.shape[1]):
         #only the autocorrelation is affected by shot noise
-        if orderings[i][0] == orderings[i][1]:
-            combination_cl[:, i] += shotnoise[i]
+            if orderings[i][0] == orderings[i][1]:
+                combination_cl[:, i] += shapenoise[i]
 
     #now calculate the covariance matrice for each of the Cl_orderings
     out_mat = []

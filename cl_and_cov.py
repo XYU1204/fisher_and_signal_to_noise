@@ -95,7 +95,7 @@ def num_den(dndz_sliced, numdenPerStr):
     new = numdenPerStr*new
     return new
 
-def getCovMat(fsky, n_bins, cl, dndz_sliced, numdenPerStr, ell, *shape_noise):
+def getCovMat(fsky, n_bins, cl, dndz_sliced, numdenPerStr, ell, shape_noise=None, shot_noise=False):
     """dndz1 is the original galaxy redshift distribution, whereas dndz is the sliced distribution in different redshift bins"""
     l = []
     for j in range(n_bins):
@@ -103,10 +103,10 @@ def getCovMat(fsky, n_bins, cl, dndz_sliced, numdenPerStr, ell, *shape_noise):
     cl_bin = np.vstack((ell, cl)).T
     #for number density, divide galaxy numbers into each tomographic bin
     numden = num_den(dndz_sliced, numdenPerStr)
-    cov_arr = np.array(multi_bin_cov(fsky, cl_bin, np.array(l), numden, *shape_noise))
+    cov_arr = np.array(multi_bin_cov(fsky, cl_bin, np.array(l), numden, shape_noise, shot_noise))
     return cov_arr
 
-def getDataArray(n_bins, bin_type, cosmo, ell, dndz, numdenPerStr, fsky, shape_noise):
+def getDataArray(n_bins, bin_type, cosmo, ell, dndz, numdenPerStr, fsky, shape_noise=None, shot_noise=False):
     """input cosmo for cosmological object, dndz for galaxy redshift distribution, rbins for number of tomographic bins in redshift, rbin_type for how to divide the tomographic bins in redshifts: input string z for bins of equal redshifts, and n for bins of equal galaxy number. This function will return the covariance array, cl data array, and the redshift range for each tomographic bins"""
     if bin_type == 'z':
         dndz_cut = sliced_equal_z(dndz, n_bins)
@@ -116,7 +116,7 @@ def getDataArray(n_bins, bin_type, cosmo, ell, dndz, numdenPerStr, fsky, shape_n
         print("Enter 'z' for bins of equal redshifts, and 'n' for bins of equal galaxy number")
         return(None)
     cl_arr = getCl(dndz_sliced=dndz_cut, cosmo=cosmo, ell=ell) 
-    cov_arr = getCovMat(fsky, n_bins, cl_arr, dndz_cut, numdenPerStr, ell, shape_noise)
+    cov_arr = getCovMat(fsky, n_bins, cl_arr, dndz_cut, numdenPerStr, ell, shape_noise, shot_noise)
     redshifts=[]
     for x in dndz_cut.values():
         redshifts.append(x[1][0])

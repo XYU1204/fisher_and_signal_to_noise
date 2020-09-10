@@ -82,7 +82,7 @@ def fisher_matrix(covariance, dndz_sliced, ell):
     derivs_sig = {}
     for var in funcs.keys():
         if vals[var] == 0:
-            f = nd.Derivative(funcs[var], full_output=True, step=0.1)
+            f = nd.Derivative(funcs[var], full_output=True, step=0.05)
         else:
             f = nd.Derivative(funcs[var], full_output=True, step=float(vals[var])/10)
         val, info = f(vals[var], dndz_sliced, ell)

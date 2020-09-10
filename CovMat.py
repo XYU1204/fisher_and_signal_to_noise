@@ -1,24 +1,3 @@
-from astropy.table import Table
-import numpy as np 
-from matplotlib import pyplot as plt
-#matplotlib inline
-#load_ext autoreload
-#autoreload 2
-from matplotlib import pyplot as plt
-from scipy.stats import multivariate_normal
-import pandas as pd
-from scipy.stats import iqr
-from scipy.stats import dirichlet
-from scipy.interpolate import Rbf
-from scipy.stats import norm
-import pickle
-from sklearn.neighbors import KernelDensity
-import matplotlib as mpl
-mpl.rcParams['figure.dpi']= 900
-from scipy.stats import multivariate_normal
-import pickle
-import json
-
 """This program predicts the theoretical covariance matrix
 for LSS for each row in the input file
 
@@ -79,7 +58,7 @@ def get_cov_matrix(l, data_order, cl_vals, orderings, fsky):
             out_cov[z, y] = prefac * (cl_ik*cl_jl + cl_il*cl_jk)
     return out_cov
 
-def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens, *shape_noise): 
+def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens, shape_noise=None, shot_noise=False): 
         #first column --> l values
 
     combination_cl = Clbins[:, 0]
@@ -97,29 +76,23 @@ def multi_bin_cov(fsky, Clbins, Cl_ordering, num_dens, *shape_noise):
             orderings.append([index_comb[1], index_comb[0]])
         else:
             #autocorrelations
-            combination_cl = np.column_stack((combination_cl, Clbins[:, i]))
+            #add shape noise
+            toAdd = Clbins[:, i]
+            if (shape_noise != None):
+                toAdd += shape_noise/(2*num_dens[index_comb[0]]) 
+                
+            if shot_noise == True:
+                toAdd += 1/num_dens[index_comb[0]]
+            combination_cl = np.column_stack((combination_cl, toAdd))
+            
             orderings.append(index_comb)
 
     #remove the first column from combination_cl --> makes it easier since now
     #it corresponds to orderings vector
 
     combination_cl = combination_cl[:, 1:]
-
     assert len(orderings) == combination_cl.shape[1]
-
-    #add the shapenoise to each of the cl combinations:
-    if shape_noise:
-        shapenoise = []
-        for el in orderings:
-            shapenoise.append(shape_noise/(2*num_dens[int(el[0] - 1)]))  # because ordering starts with 1
-        shapenoise = np.array(shapenoise)
-        assert len(shapenoise) == combination_cl.shape[1]
-
-        for i in range(combination_cl.shape[1]):
-        #only the autocorrelation is affected by shot noise
-            if orderings[i][0] == orderings[i][1]:
-                combination_cl[:, i] += shapenoise[i]
-
+    
     #now calculate the covariance matrice for each of the Cl_orderings
     out_mat = []
     for i in range(Clbins.shape[0]):
